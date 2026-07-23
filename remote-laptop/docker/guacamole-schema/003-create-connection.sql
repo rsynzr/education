@@ -1,0 +1,1 @@
+-- Placeholder for Guacamole connection creation. Actual connection records should be created via the Admin UI or SQL insert scripts based on the running host.

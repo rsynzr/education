@@ -1,0 +1,60 @@
+services:
+  mariadb:
+    image: mariadb:10.11
+    container_name: remote-laptop-mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: example_root_password
+      MYSQL_DATABASE: guacamole_db
+      MYSQL_USER: guacamole_user
+      MYSQL_PASSWORD: guacamole_password
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    networks:
+      - remote-net
+
+  guacd:
+    image: guacamole/guacd:1.5.4
+    container_name: remote-laptop-guacd
+    restart: unless-stopped
+    networks:
+      - remote-net
+
+  guacamole:
+    image: guacamole/guacamole:1.5.4
+    container_name: remote-laptop-guacamole
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+      - guacd
+    environment:
+      GUACD_HOSTNAME: guacd
+      MYSQL_HOSTNAME: mariadb
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: guacamole_db
+      MYSQL_USER: guacamole_user
+      MYSQL_PASSWORD: guacamole_password
+    ports:
+      - "8080:8080"
+    networks:
+      - remote-net
+
+  xrdp-host:
+    image: frxyt/xrdp:latest
+    container_name: remote-laptop-xrdp
+    restart: unless-stopped
+    ports:
+      - "3389:3389"
+    networks:
+      - remote-net
+    environment:
+      USER: remote
+      PASSWORD: remotepass
+
+volumes:
+  mariadb-data:
+
+networks:
+  remote-net:
+    driver: bridge

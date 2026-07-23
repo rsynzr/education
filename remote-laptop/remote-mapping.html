@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remote Laptop Web - Access</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a class="logo" href="../index.html">EduConnect</a>
+      <nav>
+        <a href="../index.html">Beranda</a>
+        <a href="../about.html">Tentang</a>
+      </nav>
+    </div>
+  </header>
+  <main class="section-intro container">
+    <h2>Remote Desktop Terkoneksi</h2>
+    <p>Halaman ini sekarang terhubung ke layanan Apache Guacamole lokal yang menjalankan remote desktop nyata di browser.</p>
+  </main>
+  <section class="container">
+    <div class="secret-card">
+      <h3>Status Layanan</h3>
+      <p id="status">Memeriksa koneksi...</p>
+      <button class="button" id="open-guacamole">Buka Remote Desktop</button>
+      <p>Username default: <strong>guacadmin</strong>, Password default: <strong>guacadmin</strong></p>
+      <p>XRDP host user: <strong>remote</strong>, password: <strong>remotepass</strong></p>
+    </div>
+  </section>
+  <script>
+    const statusEl = document.getElementById('status');
+    const button = document.getElementById('open-guacamole');
+    fetch('http://127.0.0.1:8080/guacamole/api/health')
+      .then(r => {
+        if (r.ok) return r.json();
+        throw new Error('offline');
+      })
+      .then(() => {
+        statusEl.textContent = '🟢 Online - Guacamole tersedia';
+        button.disabled = false;
+      })
+      .catch(() => {
+        statusEl.textContent = '🔴 Offline - tidak dapat terhubung ke layanan.';
+        button.disabled = true;
+      });
+    button.addEventListener('click', () => {
+      window.open('http://127.0.0.1:8080/guacamole/', '_blank');
+    });
+  </script>
+</body>
+</html>
